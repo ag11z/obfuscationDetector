@@ -25,7 +25,7 @@ int main(int argc,  char * argv[])
 int upx =1;
 
 string optionaldection="";
-//if is a 
+//if is has optional value
     if (argc>=3)
     {optionaldection=argv[2];
                  for (int i=0; i<optionaldection.length(); i++)
