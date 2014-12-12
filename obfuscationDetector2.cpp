@@ -68,20 +68,22 @@ check =0;
         printf("\nNot Valid PE");
         return 0;
     }
-//set the section header to 
+//set the section header pointer to  point to the begining
     secHead=(IMAGE_SECTION_HEADER*)GlobalAlloc(GMEM_FIXED,sizeof(IMAGE_SECTION_HEADER)*peHead.FileHeader.NumberOfSections);
     ReadFile(host,(void*)secHead,sizeof(IMAGE_SECTION_HEADER)*peHead.FileHeader.NumberOfSections,&d,NULL);
     
   char section_name[101]; string temp; int nopacking=1; 
+  //iterate overallof the sectons
     for(i=0;i<peHead.FileHeader.NumberOfSections;i++)
     {
-                                                     
+                            //convert from bytes to a string                         
    sprintf( section_name,"%100s",secHead[i].Name); 
-   
+   //make the name uppercase
   for (int i=0; i<100; i++)
   section_name[i]=toupper(section_name[i]);
  
   temp=section_name;
+  //try finding petite
    size_t pos= temp.find("PETITE");
   
               if (pos!=std::string::npos)
@@ -89,11 +91,13 @@ check =0;
         printf("\nPetite Packing Detected!\n");
         nopacking=0;
         }
+        //try finding upx
         pos= temp.find("UPX1");
         if (pos!=std::string::npos)
         {
          printf("\nUPX Packing Detected!\n");
          nopacking=0;string answer;
+         //prompt for unpacking
         cout<<"Do you want to unpack it? yes or no\n";
         cin>>answer;
         if (answer=="yes")
@@ -102,10 +106,10 @@ check =0;
         if (answer!="no")
         cout<<"Assumed you ment no.\n";
         
-        
+  
          if (upx ==1 && unpackit==1)
          { upx=0; 
-         
+         //get the curent directory
           int length; char Buffer[100];
           GetCurrentDirectory(length ,Buffer);
           
@@ -113,6 +117,7 @@ check =0;
           string newfile;
           //system();
           string copyname=file;
+          // convert from folder/test.exe to folder\test.exe
           size_t  pos2;
           do{
            pos2=copyname.find_first_of("/");
@@ -120,24 +125,28 @@ check =0;
           copyname[pos2]='\\';
           }
           while(pos2!=std::string::npos);
-          
+          //append it to the current directory
           string name =Buffer;
           name+='\\';
           name+=copyname;
           cout<<"Copying "<<name<<" into ";
+          //store line to copying file
           newfile=Buffer;
           newfile+="\\unpacked.exe";
         file ="unpacked.exe";
           cout<<newfile<<"\n";
+          //create the copy cmd line
           string cmd="COPY ";
           cmd+=name;
           cmd+=" ";
           cmd+=newfile;
+          //call the copy cmd
           system(cmd.c_str());
+          //attempt to unpack it 
           cout<<"Trying to unpack it !\n";
           system("upx -d unpacked.exe");
           cout<<"\n Next iteration:";
-         goto Label; 
+         goto Label; //goto the begining 
            
            
         }
@@ -145,6 +154,7 @@ check =0;
            
           
         }
+        //try finding mpress
              pos= temp.find("MPRESS1");
         if (pos!=std::string::npos)
         {
@@ -166,34 +176,14 @@ check =0;
         cout<<"\n"<<argv[2]<<" packing Detected!\n";
           nopacking=0;
         }}
-        /*
-         printf("\nAspack Packing Detected!");
-        if (strstr((string)secHead[i].Name.str(), "UPX") != NULL) 
-        {
-            printf("\nUPX Packing Detected!");
-            break;
-        }
-        else if (strstr((string)secHead[i].Name.str(), "MPRESS") != NULL) 
-        {
-            printf("\nMpress Packing Detected!");
-            break;
-        }
-        else if (strstr(secHead[i].Name, "ASPACK") != NULL) 
-        {
-            printf("\nAspack Packing Detected!");
-            break;
-        }
-        else if (strstr(secHead[i].Name, "PETITE") != NULL) 
-        {
-            printf("\nPetite Packing Detected!");
-            break;
-        } */
+        
     }
+    //print if no packers where found
     if (nopacking==1)
     {
         printf("\nNo packing was Detected!\n");             
     }
-  
+  //close the handle 
     CloseHandle(host);
     system("PAUSE");
     return 0;
